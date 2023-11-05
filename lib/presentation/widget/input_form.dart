@@ -23,7 +23,7 @@ class InputForm extends StatefulWidget {
   State<InputForm> createState() => _InputFormState();
 }
 
-enum InputType { email, password, onlyText, onlyTextWithoutSpace }
+enum InputType { email, password, onlyText, onlyTextWithoutSpace, prayer }
 
 class _InputFormState extends State<InputForm> {
   bool hasError = false;

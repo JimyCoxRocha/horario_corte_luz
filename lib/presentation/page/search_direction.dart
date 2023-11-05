@@ -26,9 +26,7 @@ class _SearchDirectionState extends State<SearchDirection> {
 
   void _searchAddresses(String localSectorValue) async {
     try {
-      if (citySelected.isEmpty || localSectorValue.isEmpty) {
-        return;
-      }
+      print(localSectorValue);
       List<AddressSearch> response = await AddressesUseCase()
           .getAddresses(city: citySelected, sector: localSectorValue);
       setState(() {
@@ -37,6 +35,12 @@ class _SearchDirectionState extends State<SearchDirection> {
     } on ErrorResponse catch (data) {
       print(data);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _searchAddresses("");
   }
 
   @override
@@ -51,7 +55,7 @@ class _SearchDirectionState extends State<SearchDirection> {
               const SizedBox(height: 30),
               InputForm(
                   text: 'Buscar dirección',
-                  inputType: InputType.onlyText,
+                  inputType: InputType.prayer,
                   prefixIcon: const Icon(Icons.search),
                   onValueChanged: (value) {
                     debouncer.run(() {
@@ -69,6 +73,8 @@ class _SearchDirectionState extends State<SearchDirection> {
                       citiesList: citiesList,
                       cityDefault: citySelected,
                       onChanged: (value) => setState(() {
+                            _searchAddresses(sectorValue);
+
                             citySelected = value;
                           }))
                 ],
@@ -229,7 +235,7 @@ class _DialogConfigLocationState extends State<DialogConfigLocation> {
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: InputForm(
                   text: 'Ejem: Casa, Enamorada',
-                  inputType: InputType.onlyTextWithoutSpace,
+                  inputType: InputType.prayer,
                   onValueChanged: (value) {
                     setState(() {
                       print(value.text);

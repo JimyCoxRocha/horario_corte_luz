@@ -12,8 +12,9 @@ class SearchAddressesDatasourceImpl extends SearchAddressesDatasource {
   Future<List<AddressSearch>> getAddresses(
       {required String city, required String sector}) async {
     try {
+      String searchSectorPath = sector.isEmpty ? "" : "&sector=$sector";
       final response = await dio
-          .get('${Consts.baseUrl}/schedules?city=$city&sector=$sector');
+          .get('${Consts.baseUrl}/schedules?city=$city$searchSectorPath');
       List<AddressSearch> addresses = [];
 
       dynamic userValue = response.data["data"];
