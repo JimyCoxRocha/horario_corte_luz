@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:horario_corte_luz/architecture/dtos/ErrorResponse.dart';
+import 'package:horario_corte_luz/domain/usecase/AuthUseCase.dart';
 import 'package:horario_corte_luz/presentation/page/home_page.dart';
 import 'package:horario_corte_luz/presentation/page/login_page.dart';
 import 'package:horario_corte_luz/presentation/widget/input_form.dart';
+import 'package:horario_corte_luz/presentation/widget/toast_widget.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -14,18 +17,32 @@ class _RegisterPageState extends State<RegisterPage> {
   String userName = "";
   String email = "";
   String password = "";
+  bool _isLoadingData = false;
+  final AuthUseCase authUseCase = AuthUseCase();
 
   Future<void> _registerDataClient() async {
     print(
         "IsValid: password${!password.isEmpty}, userName${!userName.isEmpty}, email${!email.isEmpty} ${!userName.isEmpty && !password.isEmpty && !email.isEmpty}");
-    await Future.delayed(const Duration(seconds: 2));
-    return;
-    if (userName == "admin" && password == "admin") {
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const HomePage()));
-    } else {
-      print("Usuario o contraseña incorrecta");
+
+    if (email.isNotEmpty && password.isNotEmpty && userName.isNotEmpty) {
+      try {
+        setState(() {
+          _isLoadingData = true;
+        });
+        final response = await authUseCase.registerUser(
+            email: email, password: password, userName: userName);
+
+        // Implementamos loading
+        setState(() {
+          _isLoadingData = false;
+        });
+        if (response) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const HomePage()));
+        }
+      } on ErrorResponse catch (data) {
+        ToastWidget(context).toast(message: data.message);
+      }
     }
   }
 
@@ -69,7 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
               text: 'Email',
               prefixIcon: const Icon(Icons.email),
               inputType: InputType.email,
-              maxLength: 30,
+              maxLength: 60,
               onValueChanged: (value) {
                 setState(() {
                   if (!value.isValidData) {
@@ -112,10 +129,20 @@ class _RegisterPageState extends State<RegisterPage> {
                   onPressed: () {
                     _registerDataClient();
                   },
-                  child: const Text(
-                    'Registrar',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ))
+                  child: _isLoadingData
+                      ? Container(
+                          padding: const EdgeInsets.only(
+                              top: 5, bottom: 5, left: 20, right: 20),
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                      : const Text(
+                          'Registrar',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ))
             ],
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.1),

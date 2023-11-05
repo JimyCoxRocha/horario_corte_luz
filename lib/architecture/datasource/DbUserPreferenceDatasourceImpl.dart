@@ -5,7 +5,7 @@ class DbUserPreferenceDatasourceImpl extends UserPreferenceDatasource {
   @override
   Future<UserPreference> getUserPreference() {
     // TODO: implement getUserPreference
-    return Future.value(
-        UserPreference(isDarkModeOn: false, isLogged: false, userName: ''));
+    return Future.value(UserPreference(
+        isDarkModeOn: false, isLogged: false, userName: '', idUser: 1));
   }
 }

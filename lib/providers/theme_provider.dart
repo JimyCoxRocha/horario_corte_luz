@@ -15,18 +15,20 @@ class UserThemeNotifier with ChangeNotifier {
     // El cliente hizo login
     final userPreference = await UserPreferenceRepositoryImpl(
             userPreferenceDatasource:
-                UserPreferenceDatasourceFactory.userPreferenceDatasource())
+                UserPreferenceDatasourceFactory.userPreferenceDatasource(
+                    lSData: true))
         .getUserPreference();
+    final isCellPhoneDarkMode =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+            Brightness.dark;
 
     if (userPreference.isLogged) {
-      isDarkModeOn = userPreference.isDarkModeOn;
+      isDarkModeOn = userPreference.isDarkModeOn ?? isCellPhoneDarkMode;
       isLogged = userPreference.isLogged;
       userName = userPreference.userName;
     } else {
       isLogged = false;
-      isDarkModeOn =
-          WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-              Brightness.dark;
+      isDarkModeOn = isCellPhoneDarkMode;
     }
     //TODO: Obtener el tema que escogió el cliente
 

@@ -5,12 +5,14 @@ class SectorCard extends StatelessWidget {
   final String title;
   final String horario;
   final String actualizado;
+  final VoidCallback onRefresh;
 
   const SectorCard(
       {super.key,
       required this.title,
       required this.horario,
-      required this.actualizado});
+      required this.actualizado,
+      required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -75,17 +77,19 @@ class SectorCard extends StatelessWidget {
                         backgroundColor: MaterialStateProperty.all<Color>(
                             AppColors().interactableColor),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        onRefresh();
+                      },
                       icon: const Icon(Icons.update_rounded),
                       color: Colors.blue),
-                  IconButton.filledTonal(
+                  /* IconButton.filledTonal(
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
                             AppColors().interactableColor),
                       ),
                       onPressed: () {},
                       icon: const Icon(Icons.picture_as_pdf),
-                      color: Colors.blue),
+                      color: Colors.blue), */
                 ],
               )
             ],

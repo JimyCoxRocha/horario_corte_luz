@@ -1,9 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:horario_corte_luz/architecture/dtos/ErrorResponse.dart';
+import 'package:horario_corte_luz/domain/repository/UserPreferenceRepository.dart';
+import 'package:horario_corte_luz/domain/usecase/AuthUseCase.dart';
 import 'package:horario_corte_luz/presentation/page/home_page.dart';
 import 'package:horario_corte_luz/presentation/page/register_page.dart';
 import 'package:horario_corte_luz/presentation/widget/input_form.dart';
+import 'package:horario_corte_luz/presentation/widget/toast_widget.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,14 +19,35 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String email = "";
   String password = "";
+  bool _isLoadingData = false;
+  final AuthUseCase authUseCase = AuthUseCase();
 
   Future<void> _verifyDataClient() async {
     print("${email} ${password}");
-    await Future.delayed(const Duration(seconds: 2));
-    if (email == "admin@gmail.com" && password == "admin") {
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const HomePage()));
+
+    //await Future.delayed(const Duration(seconds: 2));
+    if (email.isNotEmpty && password.isNotEmpty) {
+      try {
+        setState(() {
+          _isLoadingData = true;
+        });
+        final response =
+            await authUseCase.login(email: email, password: password);
+
+        // Implementamos loading
+        setState(() {
+          _isLoadingData = false;
+        });
+        if (response) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const HomePage()));
+        }
+      } on ErrorResponse catch (data) {
+        ToastWidget(context).toast(message: data.message);
+      }
+      setState(() {
+        _isLoadingData = false;
+      });
     } else {
       print("Usuario o contraseña incorrecta");
     }
@@ -52,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                 text: 'Email',
                 prefixIcon: const Icon(Icons.email),
                 inputType: InputType.email,
-                maxLength: 30,
+                maxLength: 60,
                 onValueChanged: (value) {
                   setState(() {
                     if (!value.isValidData) {
@@ -94,11 +119,20 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {
                       _verifyDataClient();
                     },
-                    child: const Text(
-                      'Ingresar',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ))
+                    child: _isLoadingData
+                        ? Container(
+                            padding: const EdgeInsets.only(
+                                top: 5, bottom: 5, left: 20, right: 20),
+                            child: const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
+                          )
+                        : const Text(
+                            'Ingresar',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18),
+                          ))
               ],
             ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.1),
